@@ -19,13 +19,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor //vi co cac dependency
 public class ImageService implements IImageService {
-    private ImageRepository imageRepository;
-    private IProductService productService;
+    private final ImageRepository imageRepository;
+    private final IProductService productService;
 
     @Override
     public Image getImageById(Long id) {
         return imageRepository.findById(id)
-                .orElseThrow(()-> new ResourceNotFoundException("No image found with id: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("No image found with id: " + id));
     }
 
     @Override
@@ -57,9 +57,9 @@ public class ImageService implements IImageService {
                 imageRepository.save(savedImage);
 
                 ImageDto imageDto = new ImageDto();
-                imageDto.setImageId(savedImage.getId());
-                imageDto.setImageName(savedImage.getFileName());
-                imageDto.setDownLoadUrl(savedImage.getDownloadUrl());
+                imageDto.setId(savedImage.getId());
+                imageDto.setFileName(savedImage.getFileName());
+                imageDto.setDownloadUrl(savedImage.getDownloadUrl());
                 savedImageDto.add(imageDto);
 
             } catch(IOException | SQLException e){
@@ -74,7 +74,7 @@ public class ImageService implements IImageService {
         Image image = getImageById(imageId);
         try {
             image.setFileName(file.getOriginalFilename());
-            image.setFileType(file.getOriginalFilename());
+            image.setFileType(file.getContentType());
             image.setImage(new SerialBlob(file.getBytes()));
             imageRepository.save(image);
         } catch (IOException | SQLException e) {
