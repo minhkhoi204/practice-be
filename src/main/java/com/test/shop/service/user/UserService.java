@@ -1,5 +1,6 @@
 package com.test.shop.service.user;
 
+import com.test.shop.dto.UserDto;
 import com.test.shop.exceptions.AlreadyExistsException;
 import com.test.shop.exceptions.ResourceNotFoundException;
 import com.test.shop.model.User;
@@ -7,6 +8,7 @@ import com.test.shop.repository.UserRepository;
 import com.test.shop.request.CreateUserRequest;
 import com.test.shop.request.UserUpdateRequest;
 import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
@@ -15,6 +17,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService implements IUserService {
     private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
 
     @Override
     public User getUserById(Long userId) {
@@ -51,5 +54,10 @@ public class UserService implements IUserService {
         userRepository.findById(userId).ifPresentOrElse(userRepository :: delete, () ->{
             throw new ResourceNotFoundException("User not found!");
         });
+    }
+
+    @Override
+    public UserDto convertUserToDto(User user){
+        return modelMapper.map(user, UserDto.class);
     }
 }
