@@ -1,5 +1,6 @@
 package com.test.shop.controller;
 
+import com.test.shop.dto.UserDto;
 import com.test.shop.exceptions.AlreadyExistsException;
 import com.test.shop.exceptions.ResourceNotFoundException;
 import com.test.shop.model.User;
@@ -21,21 +22,38 @@ import static org.springframework.http.HttpStatus.NOT_FOUND;
 public class UserController {
     private final IUserService userService;
 
+//    @GetMapping("/{userId}/user")
+//    public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId){
+//        try {
+//            User user = userService.getUserById(userId);
+//            UserDto userDto = userService.convertUserToDto(user);
+//            return ResponseEntity.ok(new ApiResponse("Sucess", userDto));
+//        } catch (ResourceNotFoundException e) {
+//            return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+//        }
+//    }
     @GetMapping("/{userId}/user")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable Long userId){
         try {
             User user = userService.getUserById(userId);
-            return ResponseEntity.ok(new ApiResponse("Sucess", user));
+            System.out.println("DEBUG user id=" + user.getId() + ", email=" + user.getEmail());
+            UserDto userDto = userService.convertUserToDto(user);  // Có thể lỗi ở dòng này
+            return ResponseEntity.ok(new ApiResponse("Sucess", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
+        } catch (Exception e) {
+            e.printStackTrace();  // IN RA STACKTRACE ĐỂ XÁC ĐỊNH DÒNG NÀO LỖI
+            return ResponseEntity.status(500).body(new ApiResponse("Internal error: " + e.getMessage(), null));
         }
     }
+
 
     @PostMapping("/add")
     public ResponseEntity<ApiResponse> createUser(@RequestBody CreateUserRequest request){
         try {
             User user = userService.createUser(request);
-            return ResponseEntity.ok(new ApiResponse("Create User Success!", user));
+            UserDto userDto = userService.convertUserToDto(user);
+            return ResponseEntity.ok(new ApiResponse("Create User Success!", userDto));
         } catch (AlreadyExistsException e) {
             return ResponseEntity.status(CONFLICT).body(new ApiResponse(e.getMessage(), null));
         }
@@ -45,7 +63,8 @@ public class UserController {
     public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request,@PathVariable Long userId){
         try {
             User user = userService.updateUser(request, userId);
-            return ResponseEntity.ok(new ApiResponse("Update User Success!", user));
+            UserDto userDto = userService.convertUserToDto(user);
+            return ResponseEntity.ok(new ApiResponse("Update User Success!", userDto));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity.status(NOT_FOUND).body(new ApiResponse(e.getMessage(), null));
         }
